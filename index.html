@@ -27,6 +27,12 @@
         button {
             padding: 10px 15px;
         }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -34,15 +40,15 @@
         <h1>PlayerVPN</h1>
         <input type="text" id="urlInput" placeholder="Enter URL to proxy" />
         <button id="proxyButton">Go</button>
-        <iframe id="proxyFrame" src="" style="width:100%; height:500px; border:none;"></iframe>
+        <iframe id="proxyFrame" src=""></iframe>
     </div>
 
     <script>
         document.getElementById('proxyButton').onclick = () => {
             const url = document.getElementById('urlInput').value;
             if (url) {
-                // Update iframe src to hit the proxy endpoint
-                document.getElementById('proxyFrame').src = '/proxy/' + encodeURIComponent(url);
+                // Set the iframe source to the proxy endpoint with the desired URL
+                document.getElementById('proxyFrame').src = '/proxy?url=' + encodeURIComponent(url);
             } else {
                 alert('Please enter a valid URL.');
             }
