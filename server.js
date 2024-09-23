@@ -1,21 +1,38 @@
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
+const axios = require('axios');
 const app = express();
 
-// Configure the proxy middleware
-app.use('/proxy', createProxyMiddleware({
-    target: '', // Leave blank for now, we will dynamically set this
+app.use(express.static('public'));
+
+// Middleware to validate incoming URL
+const validateUrl = (req, res, next) => {
+    const url = req.query.url;
+
+    if (!url || !/^https?:\/\/.+/.test(url)) { 
+        return res.status(400).send("Invalid URL. Please provide a valid HTTP or HTTPS URL.");
+    }
+    next();
+};
+
+// Proxy middleware
+app.use('/proxy', validateUrl, createProxyMiddleware({
+    target: '',
     changeOrigin: true,
-    onProxyReq: (proxyReq, req, res) => {
-        // Add necessary headers or modifications here if needed
+    pathRewrite: (path, req) => {
+        // Remove the /proxy part and keep the query string (the actual URL)
+        const url = req.query.url;
+        return url;
     },
-    onProxyRes: (proxyRes, req, res) => {
-        // You can manipulate the response here if necessary
+    onProxyReq: (proxyReq, req, res) => {
+        // Optionally set headers here
+        proxyReq.setHeader('X-Forwarded-For', req.ip);
+    },
+    onError: (err, req, res) => {
+        console.error(err);
+        res.status(502).send("Bad Gateway");
     },
 }));
-
-// Serve static files from the public directory (where your HTML file will be placed)
-app.use(express.static('public'));
 
 // Start the server
 const PORT = process.env.PORT || 3000;
