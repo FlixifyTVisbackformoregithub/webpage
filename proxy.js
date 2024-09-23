@@ -1,8 +1,9 @@
 // functions/proxy.js
 const axios = require('axios');
 
-exports.handler = async (event, context) => {
+exports.handler = async (event) => {
     const url = event.queryStringParameters.url;
+
     if (!url) {
         return {
             statusCode: 400,
